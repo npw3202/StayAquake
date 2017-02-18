@@ -66,7 +66,22 @@ var httpServer = http.createServer(function (req, res) {
             }else if(calibrationString == "false"){
                 calibrationMode = false;
             }
-        
+            
+            //process the GSR
+            var GSR_string = parseOutValue(body,"GSR");
+            if(GSR_string != -1){
+                var GSR_value = parseFloat(HR_string);
+                GSR_val.push(GSR_value);
+                GSR_Last_Measurement = Date.now();
+            }
+            
+            //process the Blink
+            var BLINK_string = parseOutValue(body,"BLINK");
+            if(BLINK_string != -1){
+                var BLINK_value = parseFloat(BLINK_string);
+                BLINK_val.push(BLINK_value);
+                BLINK_Last_Measurement = Date.now();
+            }
             res.writeHead(200, {'Content-Type': 'text/html'});
             res.end('post received');
 
@@ -93,24 +108,7 @@ httpServer.listen(8000);
 var tcpServer = net.createServer(function (socket) {
     // arduino
     socket.on('data', function (data) {
-        var dataStr = data.toString();
-        console.log(JSON.stringify(dataStr));
-        //process the GSR
-        var GSR_string = parseOutValue(dataStr,"GSR");
-        if(GSR_string != -1){
-            var GSR_value = parseFloat(HR_string);
-            GSR_val.push(GSR_value);
-            console.log(BLINK_value)
-            GSR_Last_Measurement = Date.now();
-        }
-        //process the Blink
-        var BLINK_string = parseOutValue(dataStr,"BLINK");
-        if(BLINK_string != -1){
-            var BLINK_value = parseFloat(BLINK_string);
-            BLINK_val.push(BLINK_value);
-            console.log(BLINK_value);
-            BLINK_Last_Measurement = Date.now();
-        }
+        
     });
     
 
