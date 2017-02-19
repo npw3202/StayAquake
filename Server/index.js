@@ -17,19 +17,42 @@ var BLINK_val = [];
 var BLINK_Last_Measurement = null;
 
 //determines if we are currently in calibration mode
-var calibrationMode = false;
+var calibrationMode = true;
+var calibrationNum = 1000;
+var meanEye = -1;
+var sdEye = -1;
+var lengthClosedEye = 0;
+var thresh = 100;
 
+/**
+ * Determes if the eye is open
+ */
+function eyeOpen(val){
+    if(val > meanEye + 2 * sdEye || val < meanEye - 2 * sdEye){
+        return false;
+    }else{
+        return true;
+    }
+}
 /**
  * Determines if an alert should be fired
  */
 function alert(){
-    return true;
+    if(eyeOpen(BLINK_val[BLINK_val.length])){
+        lengthClosedEye = 0;
+        return false;
+    }else{
+        lengthClosedEye++;
+        if(lengthClosedEye > thresh){
+            return true;
+        }        
+    }
 }
 
 /**
  * finds the value in strSearch with the key strKey
  */
-function parseOutValue(strSearch,strKey){
+function parseOutValue(strSearch,strKey){   
     strArr = strSearch.split(' ');
     for(i = 0; i < strArr.length; i++){
         if(strArr[i].split(":")[0] == strKey){
@@ -85,6 +108,22 @@ var httpServer = http.createServer(function (req, res) {
             res.writeHead(200, {'Content-Type': 'text/html'});
             res.end('post received');
 
+            if(calibrationMode == true && GSR_val.length > calibrationNum){
+                calibrationMode = false;
+                //calculate the mean
+                meanEye = 0;
+                for(var i = 0; i < GSR_val.length; i++){
+                    meanEye+=GSR_val[i];
+                }
+                meanEye/=GSR_val.length;
+                //calclate the standard deviation
+                sdEye = 0;
+                for(var i = 0; i < GSR_val.length; i++){
+                    sdEye += Math.pow(meanEye-GSR_val[i],2);
+                }
+                sdEye/=GSR_val.length-1;
+                sdEye = Math.sqrt(sdEye);
+            }
         });
     }
     else
