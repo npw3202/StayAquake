@@ -21,7 +21,7 @@ void loop() {
   // put your main code here, to run repeatedly:
   int sensorValue = analogRead(sensorPin);Serial.println(sensorValue);  // Read Data
   // look for rising edges
-  lastChange = sensorValue - lastLevel;
+  /*lastChange = sensorValue - lastLevel;
   lastLevel = sensorValue;
   if (lastChange >=changeThreshold) {
     digitalWrite(ledPin, HIGH);
@@ -29,5 +29,5 @@ void loop() {
   }
   if (millis() >= lastStart + duration) {
      digitalWrite(ledPin, LOW);
-  }
+  }*/
 }
